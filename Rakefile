@@ -1,35 +1,57 @@
 require 'rubygems'
-require 'spec/rake/spectask'
-require 'rake/gempackagetask'
+require 'rake'
 
-Spec::Rake::SpecTask.new
-
-gem_spec = Gem::Specification.new do |s|
-  s.name = "aws-sdb"
-  s.rubyforge_project = s.name
-  s.version = "0.3.1"
-  s.platform = Gem::Platform::RUBY
-  s.has_rdoc = true
-  s.extra_rdoc_files = ["README", "LICENSE"]
-  s.summary = "Amazon SDB API"
-  s.description = s.summary
-  s.author = "Tim Dysinger"
-  s.email = "tim@dysinger.net"
-  s.homepage = "http://aws-sdb.rubyforge.org"
-  s.add_dependency "uuidtools"
-  s.require_path = 'lib'
-  s.files = %w(LICENSE README Rakefile) + Dir.glob("{lib,spec}/**/*")
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "aws-sdb"
+    gem.summary = "Amazon SDB API"
+    gem.description = gem.summary
+    gem.email = "ddollar@gmail.com"
+    gem.homepage = "http://github.com/ddollar/aws-sdb"
+    gem.authors = ["Tim Dysinger", "David Dollar"]
+    gem.add_runtime_dependency "uuidtools"
+    gem.add_development_dependency 'rspec'
+  end
+  Jeweler::GemcutterTasks.new
+rescue LoadError
+  puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
 
-desc "Open an irb session preloaded with this library"
-task :console do
-  sh "irb -rubygems -I lib -r aws_sdb.rb"
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/**/*_test.rb'
+  test.verbose = true
 end
 
-Rake::GemPackageTask.new(gem_spec) do |pkg|
-  pkg.gem_spec = gem_spec
+begin
+  require 'rcov/rcovtask'
+  Rcov::RcovTask.new do |test|
+    test.libs << 'test'
+    test.pattern = 'test/**/*_test.rb'
+    test.verbose = true
+  end
+rescue LoadError
+  task :rcov do
+    abort "RCov is not available. In order to run rcov, you must: sudo gem install spicycode-rcov"
+  end
 end
 
-task :install => [:package] do
-  sh %{sudo gem install pkg/#{gem_spec.name}-#{gem_spec.version}}
+task :test => :check_dependencies
+
+task :default => :test
+
+require 'rake/rdoctask'
+Rake::RDocTask.new do |rdoc|
+  if File.exist?('VERSION')
+    version = File.read('VERSION')
+  else
+    version = ""
+  end
+
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "gem-github-stats #{version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
 end
