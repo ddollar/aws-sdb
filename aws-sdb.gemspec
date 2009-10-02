@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
      "README",
      "Rakefile",
      "VERSION",
+     "aws-sdb.gemspec",
      "lib/aws_sdb.rb",
      "lib/aws_sdb/error.rb",
      "lib/aws_sdb/service.rb",
